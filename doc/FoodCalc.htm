@@ -1,0 +1,2252 @@
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<title>FoodCalc documentation</title>
+</head>
+
+<body>
+<font FACE="Arial,Helvetica">
+
+<h1>FoodCalc v. 1.3 <small><small><small><small>19980106</small></small></small></small></h1>
+
+<p>FoodCalc is a simple program to calculate intake of nutrients when given a list with
+amounts of different foods consumed and another list with contents of nutrients for the
+different foods (a food table).<br>
+Programs which does variants of such food calculations abound, but most have a fairly
+limited scope: Some are tied up to a specific food table; some requires that you type in
+all information, even if you already has the data in a computer file; and some do not
+handle reductions of nutrients due to cooking, or do so in an idiosyncratic way.<br>
+FoodCalc also has a limited scope, but inside this scope it tries to be both flexible and
+efficient. For starters FoodCalc expects the user to be a programmer or at least someone
+with enough skills to prepare text files and submit commands on a command line. If you,
+the reader, do not feel you fit those expectations, you should ask a programmer for
+initial help in using the FoodCalc program.<br>
+FoodCalc expects you to already have both the list of consumed amounts and the food table
+available in computer text files. If this is not the case, you must first enter the data
+in an editor or in some other system, e.g. a database system or an interview support
+system. Most such systems will then be able to export the data in a form understandable by
+FoodCalc. Also the commands telling FoodCalc how to do the calculations must be entered in
+a text file before the execution of the FoodCalc program. This may not seem very
+user-friendly, but it makes it easy repeatedly, systematically and well documented to do
+the same calculations but with different data, or to do different calculations with the
+same data. Also it makes it easy for programmers to use FoodCalc as a part of a larger
+system.<br>
+The calculations done by FoodCalc are rather simple, however it does have some
+flexibility, especially in how to do reductions of nutrients when foods are cooked by
+boiling, frying, etc.<br>
+FoodCalc is very efficient, making it possibly quite quickly to compute intakes for tens
+or even hundreds of thousands of people with each hundreds or thousands of foods consumed.
+The time taken for FoodCalc to do the calculations will however largely depend on the
+computer used. At the time of writing FoodCalc is available for Windows 95, Windows NT and
+HP-UX. Also the source code is available, and can be easily compiled on most systems that
+have an ANSI C compiler.</p>
+
+<p>The FoodCalc program was written by <a href="http://www.ibt.ku.dk/jesper">Jesper
+Lauritsen</a>. The writing of the initial version and some of the later changes was
+largely funded by the <a href="http://www.cancer.dk/forsk/kb/epi/kost.html">Diet, Cancer
+and Health project</a> at the <a href="http://www.cancer.dk/english/">Danish Cancer
+Society</a>. You may want to check for a newer version of FoodCalc at <a
+href="http://www.foodcalc.dk">http://www.FoodCalc.dk</a>. If
+you have any questions, comments, bug reports, bug fixes, or enhancements, you may try
+sending e-mail to <a href="mailto:Jesper.Lauritsen@acm.org">Jesper.Lauritsen@foodcalc.dk</a>.<br>
+<small>The program is in the public domain. You may use it and change it in any way you
+like.</small> <small>However, you should always give due credit to Jesper Lauritsen. Also,
+neither Jesper Lauritsen nor the Danish Cancer Society can in no way be responsibly for
+any damages done by this program. Also, neither Jesper Lauritsen nor the Danish Cancer
+Society gives any guaranties what so ever regarding the functionality or correctness of
+this program. Basically you can use it if you want, but if it does not follow your
+expectations, you have no one to blame but your self.</small></p>
+
+<p>This documentation is in two parts. The first part is a user&#146;s guide with the
+sections: 
+
+<dir>
+  <i><p><a href="#Food table (foods file)">Food table (foods file)</a> <br>
+  <a href="#Consumed amounts (input file)">Consumed amounts (input file)</a> <br>
+  <a href="#Food calculations (commands file)">Food calculations (commands file)</a> <br>
+  <a href="#Group by">Group by</a> <br>
+  <a href="#Transposing">Transposing</a><br>
+  <a href="#Cooking">Cooking</a> <br>
+  <a href="#Calculating new fields">Calculating new fields</a> <br>
+  <a href="#Groups files and more than one foods file">Groups files and more than one foods
+  file</a> <br>
+  <a href="#Recipes files">Recipes files</a> <br>
+  <a href="#Reducing from input and recipes">Reducing from input and recipes</a> <br>
+  <a href="#Weight reductions">Weight reductions</a><br>
+  <a href="#Recipe reductions">Recipe reductions</a><br>
+  </i><em><a href="#Calculating recipe set fields">Calculating recipe set fields</a></em><i><br>
+  <a href="#Non-edible par">Non-edible part</a><br>
+  <a href="#Selecting foods">Selecting foods</a></p>
+  </i>
+</dir>
+
+<p align="left">The second part is a <a href="#Reference section">reference guide</a> with
+the sections:</p>
+
+<dir>
+  <i><p><a href="#Data files">Data files</a> <br>
+  <a href="#Commands files">Commands files</a> <br>
+  <a href="#Commands">Commands</a><br>
+  <a href="#Calling FoodCalc">Calling FoodCalc</a><br>
+  <a href="#Version history">Version history</a></p>
+  </i>
+</dir>
+
+<p>The reference guide also have detailed information about all the commands: <i><a
+href="#Log: command">Log:</a>, <a href="#Verbosity: command">Verbosity:</a>, <a
+href="#Commands: command">Commands:</a>, <a href="#Save: command">Save:</a>, <a
+href="#Decimal point: command">Decimal point:</a>, <a href="#Separator: command">Separator:</a>,
+<a href="#Comment: command">Comment:</a>, <a href="#Blip: command">Blip:</a>, <a
+href="#Foods: command">Foods:</a>, <a href="#Groups: command">Groups:</a>, <a
+href="#Recipes: command">Recipes:</a>, <a href="#Recipe sum: command">Food weight:</a>, <a
+href="#Ingredients: command">Ingredients:</a>,<a href="#Cook: command"> Cook:</a>, <a
+href="#Weight cook: command">Weight cook:</a>, <a href="#Set: command">Set:</a>,<a
+href="#Group set: command"> Group set:</a>, <a href="#Recipe set: command">Recipe set:</a>,
+<a href="#No-calc fields: command">No-calc fields:</a>, <a href="#Text fields: command">Text
+fields:</a>, <a href="#Input: command">Input:</a>, <a href="#Input format: command">Input
+format:</a>, <a href="#Input fields: command">Input fields:</a>, <a
+href="#Input *fields: command">Input *fields:</a>, <a href="#Input scale: command">Input
+scale:</a>, <a href="#Cook field: command">Cook field:</a>, <a
+href="#Reduce field: command">Reduce field:</a>, <a href="#Weight reduce field: command">Weight
+reduce field:</a>, <a href="#Recipe reduce field: command">Recipe reduce field:</a>, <a
+href="#Recipe weight reduce field: command">Recipe weight reduce field:</a>, <a
+href="#Non-edible field: command">Non-edible field:</a>, <a href="#Output: command">Output:</a>,
+<a href="#Output format: command">Output format:</a>, <a href="#Output fields: command">Output
+fields:</a>, <a href="#Transpose: command">Transpose:</a>, <a href="#Group by: command">Group
+by:</a>, <a href="#Where: command">Where:</a>.</i></p>
+
+<p>&nbsp;</p>
+
+<h3><a name="Food table (foods file)">Food table (foods file)</a></h3>
+
+<p>The basis for the calculations is a database with the contents of nutrients for
+different foods &#150; this is what we call a food table. As nutrients FoodCalc
+understands both macro nutrients (total energy, total fat contents, total protein
+contents, etc.) and micro nutrients (vitamins, minerals, etc.) (it would perhaps be more
+correct to talk about food components instead of nutrients). Indeed FoodCalc does not
+distinct between different types of nutrients (except possibly by some rule you specify
+for reductions when cooked). Also FoodCalc treat all foods in the food table equal, and
+the foods may be basic foods, composite foods, or even whole meals.<br>
+Each food must be identified by a number, which we call the food id. The numbers must be
+positive integers, but they do not need to be consecutive and you can choose any numbering
+scheme you like.<br>
+For each food should be listed the values specifying the contents of each nutrient. All
+such values should be given with respect to the same amount of the food. Typically you
+will specify the values for 100 g of the food (we call this the food table amount), but
+you may choose any amount, as long as you use the same amount for all nutrients and for
+all foods. You do not normally have to specify the food table amount explicitly, but it
+may be a good idea to do so anyway, and we will return to <a href="#Recipes files">how to
+do that</a>.<br>
+The units of each nutrient may be different (but each nutrient should off course be
+specified in the same units for all the foods).<br>
+The food table must be in the form of a<a href="#Data files"> text file</a>. This means
+you must prepare it with a text editor, a word processor (where you export to a text file)
+or perhaps export it from some database system. We call such a file a foods file. The
+following is an example of a very small foods file: 
+
+<dir>
+  <code><p>food#,energy,fat,water,vit_d,calcium<br>
+  381,766,12.1,68.9,0.60,7.0<br>
+  1146,949,0.2,44,0,0</code></p>
+</dir>
+
+<p>The first line lists the names of the columns in the table. We call the columns for
+fields, so we say the first line is a list of the field names. Each field is either a food
+id (food#) or a nutrient (energy, fat, etc.) (Later we will introduce other types of
+fields). Although it is not stated explicitly, this example specifies all values per 100 g
+of the foods (which are defatted pork collar and apricot marmalade from the <a
+href="http://www.vfd.dk/publikationer/levneds1.htm">Danish national food table</a>). The
+nutrients are total energy in kJ, total fat in g, total water in g, vitamin D in µg, and
+calcium in mg. But note that all we specify is the names of the fields.<br>
+It is very important to note that FoodCalc does not handle missing values. If you leave
+out values from the table, FoodCalc will simply use zero for such values.</p>
+
+<h3><a name="Consumed amounts (input file)">Consumed amounts (input file)</a></h3>
+
+<p>How you express the consumed amounts of different foods will of course depend somewhat
+on how you collected this information. As a minimum you must specify a list with food id
+and the amount consumed. The food id must of course be defined in the food table. The
+amount can be in grams, in pounds, or in any other unit, but you must of course use the
+same unit consistently. You do not have to use the same unit as you use in the food table.
+You can have any number of additional values like person identifications, food occasion
+identifications, etc.<br>
+Again the information must be in a <a href="#Data files">text file</a>, and we call such a
+file an input file. The following is a small example: 
+
+<dir>
+  <code><p>Person_id,food,amount<br>
+  101,381,9<br>
+  101,1146,20<br>
+  102,381,11.5</code></p>
+</dir>
+
+<p>Again the first line names the fields (we have three fields here). In this example the
+file contains information about a number of persons, which each has consumed a number of
+foods (this could for example be data from a food frequency questionnaire or perhaps from
+a food diary). The first field, &quot;person_id&quot;, identifies the person. The second
+field, &quot;food&quot;, identifies the food consumed. The third field,
+&quot;amount&quot;, is the amount consumed in grams.</p>
+
+<h3><a name="Food calculations (commands file)">Food calculations (commands file)</a></h3>
+
+<p>When you want to do food calculations, you will always need at least three <a
+href="#Data files">text files</a>: the <a href="#Food table (foods file)">foods file</a>;
+the <a href="#Consumed amounts (input file)">input file</a>; and a <a
+href="#Commands files">commands file</a> that specifies how to do the calculations.<br>
+Let us say we have the foods file in the example above in the file &quot;foods.txt&quot;
+and the input file in the other example above in the file &quot;input.txt&quot;. If we
+want to get consumed nutrients for each consumed food we need the following simple
+commands file: 
+
+<dir>
+  <code><p>; this is an example<br>
+  <a href="#Foods: command">Foods:</a> &quot;foods.txt&quot; food#<br>
+  <a href="#Input: command">Input:</a> &quot;input.txt&quot; food amount<br>
+  <a href="#Input scale: command">Input scale:</a> 0.01 ; = 1/100<br>
+  <a href="#Output: command">Output:</a> &quot;output.txt&quot;</code></p>
+</dir>
+
+<p>The commands file can contain comments in lines starting with a semi-colon. You can
+also have comments at the same line as a command, starting with a semi-colon (as after the
+&quot;input scale:&quot; command in the example above). Commands in the file are each on
+one line, and such command lines always start with the name of the command followed by a
+colon and then the arguments to the command. Most commands can be entered in any order and
+FoodCalc does not differentiate between upper and lower case letters.<br>
+The &quot;<a href="#Foods: command">foods:</a>&quot; command specifies the name of the
+file containing the food table and the name of food id field. The &quot;<a
+href="#Input: command">input:</a>&quot; command specifies the name of the file containing
+the consumed amounts and the name of the food id field and the amount field in that file.
+The &quot;<a href="#Input scale: command">input scale:</a>&quot; command specifies the
+proportion between the units of the input file amount and the food table amount. In this
+example the units of the input file is grams and the food table amount is 100 grams,
+giving an input scale value of 0.01 (= 1/100). Finally the &quot;<a
+href="#Output: command">output:</a>&quot; command specifies the file name of the file
+where the resulting values are written.</p>
+
+<p>If the commands are in the file &quot;example.fc&quot;, we can execute the calculation
+by entering the following at a command prompt (a DOS-prompt or a UNIX shell-prompt,
+depending on your operating system): 
+
+<dir>
+  <code><p>foodcalc example.fc</code></p>
+</dir>
+
+<p>This will make a log file with the name &quot;example.log&quot;, telling a little about
+what was done and if there were any errors. After running FoodCalc you should always check
+for errors in the log file. The log file looks like this: 
+
+<dir>
+  <code><p>FoodCalc v. 1.2<br>
+  Tue Jun 09 16:25:24 1998<br>
+  <br>
+  Read 4 commands from file example.fc.<br>
+  <br>
+  Read foods file foods.txt. Foods: 2. Fields:<br>
+  food# energy fat water vit_d calcium <br>
+  <br>
+  The food table contains 2 foods and the fields: <br>
+  food# energy fat water vit_d calcium <br>
+  <br>
+  Read input file input.txt. Lines: 3. Fields: 3<br>
+  person_id food amount <br>
+  <br>
+  Wrote output file output.txt. Lines: 3. Fields: 9<br>
+  person_id food amount food# energy fat water vit_d calcium<br>
+  </code></p>
+</dir>
+
+<p>The resulting output file will contain the following: 
+
+<dir>
+  <code><p>person_id,food,amount,food#,energy,fat,water,vit_d,calcium<br>
+  101,381,9,381,68.94,1.089,6.201,0.054,0.63<br>
+  101,1146,20,1146,189.8,0.04,8.8,0,0<br>
+  102,381,11.5,381,88.09,1.3915,7.9235,0.069,0.805</code></p>
+</dir>
+
+<p>As you can see, there is one line in the output file for each line in the input file.
+You can also see that it contains all the fields from the input file as well as all the
+fields from the foods file.<br>
+The calculations done here are extremely simple. The grams consumed from the input file is
+simply multiplied with the input scale factor and with the values from the foods file (for
+example do you get the value for energy in the first line as 9*0.01*766 = 68.94). </p>
+
+<h3><a name="Group by">Group by</a></h3>
+
+<p>In the above example we got one line in the output file for each line in the input
+file. However, most often you want those results aggregated to some level. If for example
+we want the total intake for each person, we can add the following command to the commands
+file: 
+
+<dir>
+  <code><p><a href="#Group by: command">Group by:</a> person_id</code></p>
+</dir>
+
+<p>This will result in the following output file: 
+
+<dir>
+  <code><p>person_id,energy,fat,water,vit_d,calcium<br>
+  101,258.74,1.129,15.001,0.054,0.63<br>
+  102,88.09,1.3915,7.9235,0.069,0.805</code></p>
+</dir>
+
+<p>FoodCalc has summarized the nutrients values for all the consumed foods for each
+person, resulting in one line for each person in the input file. You should note that the
+output file now only contains the group by field and the nutrients fields from the foods
+file. This is because it would be meaningless to summarize any of the other fields.</p>
+
+<p>Let us take a more elaborated example. Let us say we have information about foods
+consumed for a number of persons at a number of occasions (for example meals in a single
+day). The food occasion is coded in an extra field, &quot;fco&quot;, in the input file.
+Also we have grouped all the foods in a number of groups (vegetables, fruits, meat, etc.).
+The food group is coded in an extra field, &quot;food_group&quot;, in the foods file.<br>
+If we now want total nutrients intake for each person at each food occasion for each food
+group, we can do it with: 
+
+<dir>
+  <code><p><a href="#Group by: command">Group by:</a> person_id,fco,food_group</code></p>
+</dir>
+
+<p>If the first one or more fields are input fields then the input file must be sorted on
+these input fields (previous version of FoodCalc had more limitations on the use of the
+&quot;<a href="#Group by: command">group by:</a>&quot; command, but all these limitations
+has now been lifted).</p>
+
+<h3><a name="Transposing">Transposing</a></h3>
+
+<p>Let us say that we use the commands: 
+
+<dir>
+  <code><p><a href="#Group by: command">Group by:</a> person_id, food_group<br>
+  <a href="#Output fields: command">Output fields:</a> person_id, food_group, energy</code></p>
+</dir>
+
+<p>and that the result is the following output file: 
+
+<dir>
+  <code><p>person_id,food_group,energy<br>
+  101,1,68.94<br>
+  101,3,189.8<br>
+  102,1,88.09</code></p>
+</dir>
+
+<p>For each person there is a number of lines, and each line has the energy intake
+contributed from one food group. However, if we want to import those data into a
+statistical or graphical system for analysis, that is not a very nice form. Let us say
+that all foods in the food table has food_group values between 1 and 4. We can then use
+the commands: 
+
+<dir>
+  <code><p><a href="#Group by: command">Group by:</a> person_id<br>
+  <a href="#Output fields: command">Output fields:</a> person_id<br>
+  <a href="#Transpose: command">transpose:</a> food_group 4 energy</code></p>
+</dir>
+
+<p>and the result will then be the following output file: 
+
+<dir>
+  <code><p>person_id,energy1,energy2,energy3,energy4<br>
+  101,68.94,0,189.8,0<br>
+  102,88.09,0,0,0</code></p>
+</dir>
+
+<p>Now there is only one line for each person but one energy field for each food_group. We
+say that we transpose energy on the food_group. You can have any number of &quot;<a
+href="#Transpose: command">transpose:</a>&quot; commands.</p>
+
+<h3><a name="Cooking">Cooking</a></h3>
+
+<p>Many food tables contains only (or perhaps mostly) uncooked foods. But most people like
+cooked foods, and cooking can substantially change the amount of nutrients in the foods.
+FoodCalc&#146;s understanding of cooking is very simple but also quite flexibly.</p>
+
+<p>FoodCalc cooks by using what we call reduce fields. If we have a foods file with the
+fields: 
+
+<dir>
+  <code><p>Food_id,vit_a,sodium,calcium,vit_a_boil,vit_a_fry,min_boil,min_fry</code></p>
+</dir>
+
+<p>We can then use the following commands: 
+
+<dir>
+  <code><p><a href="#Cook: command">Cook:</a> boil vit_a_boil vit_a<br>
+  <a href="#Cook: command">Cook:</a> boil min_boil sodium,calcium<br>
+  <a href="#Cook: command">Cook:</a> fry vit_a_fry vit_a<br>
+  <a href="#Cook: command">Cook:</a> fry min_fry sodium,calcium</code></p>
+</dir>
+
+<p>The fields vit_a, sodium and calcium are nutrient fields and the fields vit_a_boil,
+min_boil, vit_a_fry and min_fry are reduce fields. The commands specifies that if we are
+boiling a food, we should reduce the vitamin A content with the factor in the vit_a_boil
+field, and we should reduce the Sodium and Calcium content with the factor in the min_boil
+field. If we are frying a food, we should reduce the vitamin A content with the factor in
+the vit_a_fry field, and we should reduce the Sodium and Calcium content with the factor
+in the min_fry field.</p>
+
+<p>In this way you fully control how much which nutrients should be reduced by each type
+of cooking. You can specify any number of cooking methods with any names you like and you
+can use as many reduce fields as necessary. <br>
+This method allows different reduction factors for each food and for each cooking method
+(you can use groups files as explained later to use the same reduction factors for groups
+of foods).</p>
+
+<p>The reduce fields should have values, which are the factor the nutrient should be
+reduced by. Let us say that for a given food the vitamin A contents should be reduced by
+10% when boiling, then the vit_a_boil field should have the value 0.1. You can also
+specify negative values meaning that the content of the nutrient should be increased. This
+may be useful for water in some foods when boiling and for fat in other foods when frying.</p>
+
+<p>You use an extra field in the input file to specify if and how to cook the food
+consumed. This field should be specified with the &quot;<a href="#Cook field: command">cook
+field</a>:&quot; command, as in the line below: 
+
+<dir>
+  <code><p><a href="#Cook field: command">Cook field:</a> cook boil,fry</code></p>
+</dir>
+
+<p>The first argument to the &quot;<a href="#Cook field: command">cook field:</a>&quot;
+command tells the name of the field in the input file, which specifies the cooking. In
+this example the field &quot;cook&quot; is used. The second argument should be a list with
+the names of the cooking methods used. The &quot;cook&quot; field should have the value
+zero if the food should not be cooked. It should have the value one if it should be cooked
+by the first cooking method listed in the command (in this case it is &quot;boil&quot;),
+it should have the value two if it should be cooked by the second method listed, and so
+on.</p>
+
+<p>We will later show how to do cooking and other reductions in other ways.</p>
+
+<p>You should note that when an input line specifies that the consumed food is to be
+cooked, then the amount field in the input file should specify the <i>uncooked</i> weight
+of the food consumed. If you do not like this, you can instead use <a
+href="#Recipes files">recipes as explained later</a>.</p>
+
+<h3><a name="Calculating new fields">Calculating new fields</a></h3>
+
+<p>In our very first example we had an &quot;energy&quot; field in the foods file.
+However, this is not a good field to have in the food table. This is because total energy
+usually is calculated from other fields in the food table, and if cooking reduces the
+values of these other fields you must also reduce the energy in a perhaps non-obvious way.<br>
+A common method to calculate the total energy contents is to calculate: 17*protein_total +
+38*fat_total + 17*carbohyd_total + 30*alcohol. If the foods file contains the fields
+protein_tot, fat_tot, carb_total and alcohol with values in grams, we can make a new
+field, which will contain the total energy in kJ with the command: 
+
+<dir>
+  <code><p><a href="#Set: command">Set:</a> energy = 7*protein_total + 38*fat_total +
+  17*carbohyd_total + 30*alcohol</code></p>
+</dir>
+
+<p>You can make any number of new fields with the &quot;<a href="#Set: command">set:</a>&quot;
+command. These new set fields can be used almost anywhere you can use a food table
+nutrient field.</p>
+
+<p>The set fields are calculated for each food that is calculated, and if the &quot;<a
+href="#Group by: command">group by:</a>&quot; command is used the values of the set fields
+are aggregated just like any food table nutrient field. However that means that we can not
+use the &quot;<a href="#Set: command">set:</a>&quot; command to for example calculate the
+fat energy percent (think about it, and you will se why). Therefore there is a variant: 
+
+<dir>
+  <code><p><a href="#Group set: command">Group set:</a> fat_energy_pct = 38*fat_total /
+  energy * 100</code></p>
+</dir>
+
+<p>The group set fields are calculated <em>after</em> the group by aggregations and will
+therefore calculate the fat energy percent correctly. You may wonder if you can not just
+always use the &quot;<a href="#Group set: command">group set:</a>&quot; command instead of
+the &quot;<a href="#Set: command">set:</a>&quot; command. The answer is, that you very
+often can do that (for example it would probably be a good idea to make energy a group set
+field instead of a group field). But for technical reasons you can only use group set
+fields in the &quot;<a href="#Output fields: command">output fields:</a>&quot;, while you
+can use set fields in many other commands.</p>
+
+<p>Another useful field to calculate could be the weight of the food consumed (this will
+be equal to the amount field in the input file if the food is not cooked, but it may be
+different if it is cooked). This field we will later use in the &quot;<a
+href="#Recipe sum: command">food weight:</a>&quot; command, and therefore we make it a set
+field and not a group set field. If you have the fields above and also the fields
+&quot;ash&quot; and &quot;water&quot; in the foods file, you can calculate it with: 
+
+<dir>
+  <code><p><a href="#Set: command">Set:</a> weight = protein_tot + fat_tot + carb_tot +
+  alcohol + ash + water<br>
+  </code></p>
+</dir>
+
+<h3><a name="Groups files and more than one foods file">Groups files and more than one
+foods file</a></h3>
+
+<p>If you have groups of foods which has the same value for one or more fields you may use
+groups files. This is most often useful for reduce fields, where you often will have only
+generic values for groups of foods.<br>
+To use a groups file you must have one or more group reference fields in the foods file.
+These fields specifies which group the food is a member of. Such group ids must be
+positive integers. If all the group reference fields has a value of zero for some food,
+this food is not a member of any group.<br>
+The groups file is a <a href="#Data files">text file</a> very much like a foods file. It
+should contain the group id fields and there should be a line for each group. The groups
+file can contain any number of additional fields.</p>
+
+<p>If we have a foods file like: 
+
+<dir>
+  <code><p>Food_id,vit_a,group_id<br>
+  400,3,1<br>
+  401,2,3<br>
+  402,2,1<br>
+  403,3,0</code></p>
+</dir>
+
+<p>And a groups file with name &quot;groups.txt&quot; like: 
+
+<dir>
+  <code><p>Group_id,vit_a_boil,vit_a_fry<br>
+  1,0.1,0.2<br>
+  2,0.2,0.1<br>
+  3,0.4,0.4</code></p>
+</dir>
+
+<p>Then if we have the command line: 
+
+<dir>
+  <code><p><a href="#Groups: command">Groups:</a> &quot;groups.txt&quot; group_id</code></p>
+</dir>
+
+<p>It will be just as if we had a foods file like: 
+
+<dir>
+  <code><p>Food_id,vit_a,group_id,vit_a_boil,vit_a_fry<br>
+  400,3,1,0.1,0.2<br>
+  401,2,3,0.4,0.4<br>
+  402,2,1,0.1,0.2<br>
+  403,3,0,0,0</code></p>
+</dir>
+
+<p>You can have any number of group files, and you can also have more than one foods file
+if you want. There can usually be two reasons to have more than one foods file. You may
+want to have some foods in one file and other foods in another file (for example if you
+have different sources for the data). In this case you should use different food id values
+in the different files. Also you may want to have some fields in one file and other fields
+in another file (for example you may want to have nutrient fields in one file and reduce
+fields in another file). In this case you should make sure that all foods are in both
+files with the same food id values. If a food is not in one of the foods files, all fields
+defined in that file will get the value zero.<br>
+You specify several foods files simply by using several &quot;<a href="#Foods: command">foods:</a>&quot;
+commands.</p>
+
+<p>We call the combination of all groups and foods files for the food table (however, <a
+href="#Recipes files">we will se that recipes files</a> will add foods to the food table
+and that the <a href="#Calculating recipe set fields">&quot;recipe set:&quot; command</a>
+can add fields to the food table).</p>
+
+<h3><a name="Recipes files">Recipes files</a></h3>
+
+<p>You can add new foods to the food table by combining other foods in the foods table
+according to recipes, which specifies how much of each ingredient (an existing food) to
+use and if and how the ingredient should be cooked.</p>
+
+<p>You specify recipes in recipes files, which looks very much like<a
+href="#Consumed amounts (input file)"> input files</a>, as in the example below: 
+
+<dir>
+  <code><p>Recipe_id,food,amount,cook<br>
+  3001,400,30,1<br>
+  3001,401,110,1<br>
+  3001,403,5,0<br>
+  3002,400,50,1</code></p>
+</dir>
+
+<p>The file contains four fields: The first field is the recipe id, which must be a
+positive integer. Recipe ids must be unique and must also be different from all food ids
+(actually, after the recipe is read it will be a food in the food table with food id equal
+to the recipe id.) The second field is the food id of the ingredient, which should have
+values which can be found in a foods file. The third field is the amount, which can be in
+grams or any other unit exactly as in input files. And finally there may be a cook field
+exactly as in input files. The file should have one line for each ingredient in each
+recipe.<br>
+Alternatively you can use an other format of the recipes file, which we call the <a
+href="#Star format">star format</a>. With the star format the example above looks like
+this: 
+
+<dir>
+  <code><p>*Recipe_id<br>
+  food,amount,cook<br>
+  *3001<br>
+  400,30,1<br>
+  401,110,1<br>
+  403,5,0<br>
+  *3002<br>
+  400,50,1</code></p>
+</dir>
+
+<p>The two examples define exactly the same recipes. The examples defines two new
+foods(/recipes): Food(/recipe) 3001 which is composed of 30 grams of food 400, boiled, 110
+grams of food 401, also boiled, and 5 grams of food 403, uncooked. And food 3002 which
+only is 50 grams of food 400, boiled.</p>
+
+<p>You use recipes files with the &quot;recipes:&quot; command, like in the example below:
+
+<dir>
+  <code><p><a href="#Recipes: command">Recipes:</a> &quot;recipes.txt&quot; recipe_id food
+  amount</code></p>
+</dir>
+
+<p>The &quot;recipes:&quot; command takes as arguments the name of the recipes file, the
+name of the field with recipes ids, the name of the field with food ids for the
+ingredients, and the name of the field with the amount of the ingredient.</p>
+
+<p>As you remember, all nutrient values in the foods and groups file were per some
+implicit amount of food (for example per 100 grams), and we called this amount for the <a
+href="#Food table (foods file)">food table amount</a>. The amounts of the ingredients may
+sum to any value for a recipe, but for us to use the recipe as a new food in food table we
+must normalize the total amount to the food table amount. Also, cooking may change the
+amounts for some of the ingredients. The FoodCalc program does this normalizing
+automatically, but you must tell it how to know the weight of a cooked food and what the
+value of the food table amount is.<br>
+The weight of a cooked food was discussed in the &quot;<a href="#Calculating new fields">Calculating
+new fields</a>&quot; section, and you can only use recipes if you have fields, which sum
+to the cooked weight of a food (however, if you do not use cooking, you can simply have a
+&quot;weight&quot; field in the foods file that has the value 100 for all foods).<br>
+You specify this with the &quot;<a href="#Recipe sum: command">food weight:</a>&quot;
+command, like below: 
+
+<dir>
+  <code><p><a href="#Recipe sum: command">Food weight:</a> 100
+  protein_tot,fat_tot,carb_tot,alcohol,ash,water</code></p>
+</dir>
+
+<p>The first number is the value of the food table amount and the sum of the fields listed
+should be the weight of the food. If you had defined a new &quot;weight&quot; field like
+in the calculate example previously, you could simply use: 
+
+<dir>
+  <code><p><a href="#Recipe sum: command">Food weight:</a> 100 weight</code></p>
+</dir>
+
+<p>In the example above, the recipe 3002 contains only the food 400, boiled. Why make such
+recipes, when you can specify food 400, boiled, directly in the input file? The difference
+is that if you use food 400, boiled, in the input file, you should specify the <i>un-cooked</i>
+weight consumed. But if you use recipe 3002 in the input file, you should specify the <i>cooked</i>
+weight consumed.</p>
+
+<p>FoodCalc allows you to specify a negative amount for an ingredient. This is probably
+only meaningful if that ingredient is water (with zero content of all nutrients except the
+content of water). In that case the interpretation can be that you remove water from the
+recipe because the water evaporate while cooking the recipe. The water content in recipes
+is very important because the proportion of water influences the level of all nutrients
+when you take a given amount of the total recipe.<br>
+You must of course be very careful when you combine this method with the use of reduce
+fields.</p>
+
+<p>When defined, the recipes behave just like foods defined in a foods file, and you
+reference recipes just like simple foods in your input file. However, when you group by a
+field in the food table (for example by the food id or by some food group), you may want
+to group by the ingredients instead of by the recipes. For example, if you are interested
+in the amount of vitamin A coming from vegetables, you will group by some food group
+separating the vegetables from other foods. But if recipes are like foods, then you will
+not get the contribution from carrots used in recipes. To group by the ingredients instead
+of by the recipes, you should use the command: 
+
+<dir>
+  <code><p><a href="#Ingredients: command">Ingredients:</a> keep</p>
+  </code>
+</dir>
+
+<p>You should only use &quot;ingredients: keep&quot; when you have to, as it causes
+FoodCalc to run somewhat slower.</p>
+
+<p>Often you will have some grouping of the foods in your foods file, expressed by one or
+more group fields. When you add recipes to the food table, these recipes/foods will get
+the value zero for all fields that are not nutrient fields, and this means recipes always
+will have the value zero for such group fields. You can change this by having fields in
+the recipe file with the same name as group fields. The values from the recipes file will
+then be used in the food table if you use the &quot;<a href="#Ingredients: command">ingredients:</a>&quot;
+command with either the sum argument or the keepx argument (keepx is just like keep,
+except that keep does not copy values from the recipes file to the food table).</p>
+
+<h3><a name="Reducing from input and recipes">Reducing from input and recipes</a></h3>
+
+<p>We talked previously about <a href="#Cooking">how you can use reduce fields when
+cooking</a>. A specific cooking method chooses specific reduce fields from the food table.<br>
+You can also use reduce fields from the <a href="#Consumed amounts (input file)">input
+file</a> or from <a href="#Recipes files">recipes files</a>. Such reduce fields are not
+related to the <a href="#Cook field: command">cook field</a> &#150; an input/recipe reduce
+field will always be used regardless of any cooking method specified. These reduce fields
+are probably most interesting in recipes.</p>
+
+<p>Let us say you have an extra field in your recipes file with the name water_loss, and
+you have a field in the food table with the name water. The water_loss field contains the
+proportion of water lost in the given ingredient when the recipe is cooked. You tell this
+to FoodCalc with the command: 
+
+<dir>
+  <code><p><a href="#Reduce field: command">Reduce field:</a> water_loss water</code></p>
+</dir>
+
+<p>As you can see, the &quot;<a href="#Reduce field: command">reduce field:</a>&quot;
+command is exactly like the &quot;<a href="#Cook: command">cook:</a>&quot; command except
+you do not specify a cooking method and that the reduce field is in the recipe and/or
+input file instead of in the food table.<br>
+You can combine the use of reduce fields from the food table and from the recipe file. For
+example you can use reduce fields from a groups file to specify loss of micro nutrients
+depending of the cooking method, combined with a reduce field in a recipe file to specify
+loss of water for specific ingredients in specific recipes. You must of course be very
+careful if you reduce a nutrient field with both a recipe reduce field and a food table
+reduce field!</p>
+
+<h3><a name="Weight reductions">Weight reductions</a></h3>
+
+<p>The &quot;<a href="#Reduce field: command">reduce field:</a>&quot; command uses reduce
+fields which specify how much to reduce as a fraction of the value of the nutrient.
+Alternatively you can use what we call weight reduce fields, which specify how much to
+reduce as a fraction of the weight of the food.<br>
+To use weight reduce fields, FoodCalc must know the food table amount, and it must know
+how to calculate the weight of a food. You specify this with the &quot;<a
+href="#Recipe sum: command">food weight:</a>&quot;, just as when you use <a
+href="#Recipes files">recipes, as explained above</a>. <br>
+Some countries has a tradition of specifying reductions of water and fat in this way. You
+tell FoodCalc to use weight reduce fields with the &quot;<a
+href="#Weight reduce field: command">weight reduce field:</a>&quot; command as in the
+example below: 
+
+<dir>
+  <code><p><a href="#Recipe sum: command">Food weight:</a> 100
+  protein_tot,fat_tot,carb_tot,alcohol,ash,water<br>
+  <a href="#Weight reduce field: command">Weight reduce field:</a> water_reduc water</code></p>
+</dir>
+
+<p>Let us say that a recipe contains 20 grams of an ingredient which has a water_reduc
+value of 0.2. Then the water field in the example above will be reduced with 20*0.2 = 4.</p>
+
+<p>When reducing the the contents of fat you may like to specify it as a weight reduction.
+We usually call &quot;fat&quot; a macro nutrient. You also may have several micro
+nutrients which are different components of fat, and you can choose to reduce them with
+the same factor as the fat macro nutrient, as in the example below: 
+
+<dir>
+  <code><p><a href="#Weight reduce field: command">Weight reduce field:</a> fat_reduc
+  fat,fat_mono,fat_poly,fat_other</code></p>
+</dir>
+
+<p>Let us say that a recipe contains 20 grams of an ingredient which has a fat_reduc value
+of 0.1. Then the fat field in the example above will be reduced with 20*0.05 = 2, just
+like in the water example above. If the ingredient has a fat value of 30 grams per 100
+grams of the food, then the resulting fat contents for the ingredient will be 30/100*20 -
+2 = 4. This means the fat content has been reduced with the fraction 2/(30/100*20) =
+0.333. In the example above the fields fat_mono, fat_poly and fat_other will then be
+reduced with the same fraction 0.333.<br>
+If you have a list of fields in the &quot;<a href="#Weight reduce field: command">weight
+reduce field:</a>&quot; command, the first field may be a calculate field. For example, if
+the sum of the fields fat_mono, fat_poly and fat_other equals the total fat contents in
+the food, the you do not need the fat field in the food table, but can instead calculate
+it with the &quot;<a href="#Calculate: command">calculate:</a>&quot; command.</p>
+
+<p>You can also use weight reduce fields when cooking, just by using the &quot;<a
+href="#Weight cook: command">weight cook:</a>&quot; command instead of the &quot;<a
+href="#Cook: command">cook:</a>&quot; command, as in the example below: 
+
+<dir>
+  <code><p><a href="#Weight cook: command">Weight cook:</a> boil water_boil water<br>
+  <a href="#Weight cook: command">Weight cook:</a> fry water_fry water<br>
+  <a href="#Weight cook: command">Weight cook:</a> boil fat_boil
+  fat,fat_mono,fat_poly,fat_other<br>
+  <a href="#Weight cook: command">Weight cook:</a> fry fat_fry
+  fat,fat_mono,fat_poly,fat_other<br>
+  </code></p>
+</dir>
+
+<h3><a name="Recipe reductions">Recipe reductions</a></h3>
+
+<p>As mentioned earlier it is usually most useful to do reductions in recipes files
+instead of in input files. But note, that the commands &quot;<a href="#Cook: command">cook:</a>&quot;,
+&quot;<a href="#Weight cook: command">weight cook:</a>&quot;, &quot;<a
+href="#Reduce field: command">reduce field:</a>&quot; and &quot;<a
+href="#Weight reduce field: command">weight reduce field:</a>&quot; all specifies
+reductions on the ingredient level. Some times you do not want to be that specific, but do
+just want to use the same reductions for all ingredients in a recipe. You can do that with
+the &quot;<a href="#Recipe reduce field: command">recipe reduce field:</a>&quot; and
+&quot;<a href="#Recipe weight reduce field: command">recipe weight reduce field:</a>&quot;
+commands, as in the example below: 
+
+<dir>
+  <code><p><a href="#Recipe reduce field: command">Recipe reduce field:</a> water_reduc
+  water<br>
+  <a href="#Recipe weight reduce field: command">Recipe weight reduce field:</a> fat_reduc
+  fat,fat_mono,fat_poly,fat_other</code></p>
+</dir>
+
+<p>The recipe reduce fields should be star fields if you use the <a href="#Star format">star
+format</a>, otherwise the value of the recipe reduce field should be the same for all
+ingredients. <br>
+The &quot;<a href="#Recipe reduce field: command">recipe reduce field:</a>&quot; command
+is actually just an alias for the &quot;<a href="#Reduce field: command">reduce field:</a>&quot;
+command (think about it, and you will see it is the same), but you can use the &quot;<a
+href="#Recipe reduce field: command">recipe reduce field:</a>&quot; command instead of the
+&quot;<a href="#Reduce field: command">reduce field:</a>&quot; command, to document that
+you reduce with the same fraction for all ingredients.<br>
+The &quot;<a href="#Recipe weight reduce field: command">Recipe weight reduce field:</a>&quot;
+works like this: The first field in the list of nutrient fields in the command are
+summarized for all the ingredients (let us call this <em>n_sum</em>), and also the weight
+of all the ingredients are summarized (let us call this <em>w_sum</em>). If we call the
+value of the reduce field for <em>r</em>, FoodCalc then calculates a fraction to reduce
+by: (<em>r</em> * <em>w_sum</em>) / <em>n_sum</em>. All the nutrient fields in the command
+are then reduced by this fraction for all the ingredients in the recipe.</p>
+
+<h3><a name="Calculating recipe set fields">Calculating recipe set fields</a></h3>
+
+<p>The &quot;<a href="#Recipe set: command">recipe set:</a>&quot; somewhat like the the
+&quot;<a href="#Set: command">set:</a>&quot; command in that it calculates an expression
+and puts the resulting value in a field. However, the &quot;<a href="#Recipe set: command">recipe
+set:</a>&quot; commands are only calculated when the recipes files are read, <em>not</em>
+when the input file is read. The expression can contain fields from the recipes files and
+the resulting field will be put in the food table. This means that the resulting field can
+then be used just like any other food table field. There are several very specialized uses
+for this.</p>
+
+<p>If a recipes file contains the field recipe_group then the command: 
+
+<dir>
+  <code><p><a href="#Recipe reduce field: command">Recipe set:</a> recipgrp = recipe_group</code></p>
+</dir>
+
+<p>will move the value of recipe_group to the new food table value recipgrp for all
+recipes.</p>
+
+<p>The previous &quot;<a href="#Recipe reduce field: command">recipe reduce field:</a>&quot;
+example could have been written: 
+
+<dir>
+  <code><p><a href="#Recipe reduce field: command">Recipe set:</a> water = water * (1 -
+  water_reduc)</code></p>
+</dir>
+
+<p>This is of course not very interesting, but you can see that you can use the &quot;<a
+href="#Recipe set: command">recipe set:</a>&quot; command to do other very specialized
+reductions etc.</p>
+
+<p>Finally, if you for example have a glycemic_index field in your recipes files, you can
+use: 
+
+<dir>
+  <code><p><a href="#Recipe reduce field: command">Recipe set:</a> glycemic_load =
+  carbonhydrate * glycemic_index</code></p>
+</dir>
+
+<p>to calculate a new glycemic_load field in the food table containing the glycemic load
+for all recipes.</p>
+
+<h3><a name="Non-edible par">Non-edible part</a></h3>
+
+<p>Many foods consist naturally of a non-edible part (for example the bone in a lamb chop)
+and an edible part (for example everything but the bone in a lamb chop). The food table
+(the foods and groups files) should contain nutrient values for only the edible part of
+foods, and the input and recipes fields should normally have amount fields specifying the
+amount eaten.</p>
+
+<p>However, if you have a field in the food table, which as value has the non-edible
+fraction of the foods, as they are normally purchased, you can choose to specify the total
+weight (both edible and non-edible parts) in the amount fields in input and recipes
+fields, as in the example below: 
+
+<dir>
+  <code><p><a href="#Non-edible field: command">non-edible field:</a> non_edible</code></p>
+</dir>
+
+<p>In the example the food table field &quot;non_edible&quot; should contain the
+non_edible fraction, and all amount fields in input and recipes files should then contain
+the total weights.<br>
+More interesting, you may specify that only some amounts are total weights and that others
+are only the weight of the edible part, as in the example below: 
+
+<dir>
+  <code><p><a href="#Non-edible field: command">non-edible field:</a> non_edible non_ed_flag</code></p>
+</dir>
+
+<p>The second argument to the &quot;<a href="#Non-edible field: command">non-edible field:</a>&quot;
+command should be the name of a field. If this field is not in an input or recipes file,
+then all the amounts in this file should be the weight of the edible part. If the field is
+in a file, then it should have the value zero or one. If it is zero, the amount should be
+the weight of the edible part. If the value is one, the amount should be the total weight
+of that food.</p>
+
+<h3><a name="Selecting foods">Selecting foods</a></h3>
+
+<p>It is possibly to tell FoodCalc to ignore some foods or to ignore all but some foods.
+This is mostly interesting when used with <a href="#Recipes files">recipes files</a> and
+the &quot;<a href="#Ingredients: command">ingredients: keep</a>&quot; command.<br>
+You use the &quot;where:&quot; command to select foods. The example commands below select
+only foods where the food_id field has the value 236 or the food_group field has the value
+4 or 7: 
+
+<dir>
+  <code><p><a href="#Where: command">where:</a> food_id = 236 or group_id in (4,7)</code></p>
+</dir>
+
+<p>As an other example the following command will select all foods with main_group larger
+than 6 or foods with main_group equal 2 and sub_groups 3, 4 or 7: 
+
+<dir>
+  <code><p><a href="#Where: command">where:</a> main_group &gt; 6 or (main_group = 2 and
+  sub_group in (3,4,7))<br>
+  </code></p>
+</dir>
+
+<h1><a name="Reference section">Reference section</a></h1>
+
+<p>The rest of this document is reference information, which probably is of most interest
+for programmers who want to use FoodCalc together with other systems.</p>
+
+<h3><a name="Data files">Data files</a></h3>
+
+<p>FoodCalc uses a number of data files:<a href="#Foods: command"> foods files</a>, <a
+href="#Input: command">input files</a>, <a href="#Output: command">output files</a>, <a
+href="#Groups: command">groups files</a> and <a href="#Recipes: command">recipes files</a>.
+All of these files are normally text files, and they share a common format (only the input
+and output files may have a different format as explained under the &quot;<a
+href="#Input format: command">input format:</a>&quot;, &quot;<a
+href="#Input fields: command">input fields:</a>&quot; and &quot;<a
+href="#Output format: command">output format:</a>&quot; commands).</p>
+
+<p>Any line in data files which are empty (contains nothing but blanks) or where the first
+non-blank character is a semi-colon (;) are comment lines that are ignored by FoodCalc. By
+blanks we mean spaces or tabs. Other lines can also contain a semi-colon. Then the part of
+the line from the semi-colon to the end of the line is ignored.<br>
+You can instruct FoodCalc to use any other character than semi-colon as the comment
+character for all or for just a single data file (se the &quot;<a href="#Comment: command">comment:</a>&quot;
+command). This can be useful if you want to use the semi-colon character as separator
+character.</p>
+
+<p>A logical line may be continued on the next line by putting an equal sign (=) in the
+first position of the next line.</p>
+
+<h4><a name="Normal format">Normal format</a></h4>
+
+<p>The first non-comment line in a data file should list the names of the fields in the
+file. The names must be separated by the separator character which is usually a comma (,)
+and possibly with some blanks before and/or after the separator character. The field names
+may be any length and may contain any characters. However, if a name contains blanks, the
+separator character or the comment character, the name should be enclosed in double-quotes
+(&quot;). For the letters a-z the case of the letter is not significant. Below are three
+examples of legal lines with field names: 
+
+<dir>
+  <code><p>Food_id,vit_a,vit_b ; this is a comment<br>
+  ; this is a comment line<br>
+  Food#, vitaminA, vitaminB<br>
+  # , &quot;Vitamin A&quot; , &quot;Vitamin B&quot; , ; this line continues below<br>
+  = &quot;A long and very stränge field name&quot;</code></p>
+</dir>
+
+<p>You can instruct FoodCalc to use any other character than comma as the separator
+character for all or for just a single data file (see the &quot;<a
+href="#Separator: command">separator:</a>&quot; command). This is often useful in
+countries, where they use comma as decimal point in numbers. If you use space as separator
+character the field names only needs to be separated by blanks (spaces or tabs).</p>
+
+<p>Any non-comment lines after the list of field names should be a list of values. On each
+such line there should be the same number of values as the number of field names. The
+values must be separated with the separator character and blanks in the same way as the
+field names are separated. The values should normally be numeric, but you can use the
+&quot;<a href="#Text fields: command">text fields:</a>&quot; command to specify that some
+fields can contain any value. Such text fields are always just ignored when the data file
+is read. If a text field contains any separator, continuation, or comment characters, it
+should be enclosed in double-quotes (&quot;).<br>
+You can leave out a value (but not any of the separator characters), but this will be
+interpreted exactly as the number zero (FoodCalc does not handle missing values). Numeric
+values can in general be integers or contain fractions (they can be floating point
+numbers), and they can be positive or negative (however some types of fields only use the
+integer part of numbers and some types of fields requires the numbers to be positive).
+There must not be any spaces in the number and you can not use thousand separators. The
+following is three examples of lines with values for four field, where the last field is a
+text field: 
+
+<dir>
+  <code><p>1001,23,4.5,xx ; this is a comment<br>
+  ; this is a comment line<br>
+  0203, 0023, -4.0, &quot;x,;&quot;<br>
+  23 , , ; this line continues below<br>
+  = -0.000004, xx yy</code></p>
+</dir>
+
+<p>You can change the character used as decimal point for all or for just a single data
+file (se the &quot;<a href="#Decimal point: command">decimal point:</a>&quot; command).
+This is often useful in countries where the comma is used as decimal point (note, that if
+you change the decimal point to comma, you must also change the separator character to
+something else.)</p>
+
+<h4><a name="Star format">Star format</a></h4>
+
+<p>Above we described what we called the <a href="#Normal format">normal format</a> of
+data files. Alternatively you can use a star format in data files. Star format is most
+useful for <a href="#Recipes files">recipes files</a>, but you can use it in any data
+file.<br>
+The first non-comment line in a star format file should start with the star character (*),
+which should be followed by a list of field names. Those fields we call star fields. The
+second non-comment line should be list of field names. The file will contain the fields
+from both these two lines.<br>
+If any line after the two field name lines starts with a star, the star should be followed
+by the same number of values, as the number of star fields. For any following lines not
+starting with a star, the star fields will have the values from the previous star line.<br>
+Any lines after the two field name lines not starting with a star, should contain the same
+number of values as the number of non-star fields.</p>
+
+<p>The normal format file below: 
+
+<dir>
+  <code><p>field1, field2, field3<br>
+  1, 2, 3<br>
+  1, 4, 5<br>
+  2, 6, 7<br>
+  2, 8, 9</code></p>
+</dir>
+
+<p>will be interpreted by FoodCalc exactly like the star format file below: 
+
+<dir>
+  <code><p>*field1<br>
+  field2, field3<br>
+  *1<br>
+  2, 3<br>
+  4, 5<br>
+  *2<br>
+  6, 7<br>
+  8, 9 </code></p>
+</dir>
+
+<h4><a name="Standard files">Standard files</a></h4>
+
+<p>When specifying the name of a file, you can use the special file name &quot;-&quot;.
+The meaning of this depends on the type of file: 
+
+<dir>
+  <p>Log file: standard error<br>
+  Output file: standard output<br>
+  All other types of files: standard input <br>
+  </p>
+</dir>
+
+<p>The meaning of standard error, output and input will depend on your operating system.</p>
+
+<h3><a name="Commands files">Commands files</a></h3>
+
+<p>When executing the FoodCalc command you can specify one or more commands files as
+argument and FoodCalc will read all the files. From inside a commands file you can also
+read other commands files with the &quot;<a href="#Commands">commands:</a>&quot; command.
+If you do not give any arguments to FoodCalc, it will read commands from standard input.<br>
+In commands files you can use comments and continuation lines in the same way as in data
+files. The order of the commands in a commands file does not matter and the order of
+several commands files does not matter (however, for some commands the order of several
+uses of this command does matter).</p>
+
+<h3><a name="Commands">Commands</a></h3>
+
+<p>All commands start with a keyword followed by a colon (:). Upper and lower case does
+not matter in a keyword, and you may use extra blanks. The following is a list of all the
+commands that FoodCalc understands. Commands marked with + may be used more than once,
+other commands can only be used at most one time. Commands marked with ! must be used at
+least one time, other commands are optional.</p>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td><a href="#Log: command">log:</a> <i>file-name</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Verbosity: command">verbosity:</a> <em>number</em></td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Commands: command">commands:</a> <i>file-name</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Save: command">save:</a> <i>file-name</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Decimal point: command">decimal point:</a> <i>character</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Separator: command">separator:</a> <i>character</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Comment: command">comment</a>: <em>character</em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Blip: command">blip:</a> <i>number</i> </td>
+  </tr>
+  <tr>
+    <td>!+</td>
+    <td><a href="#Foods: command">foods:</a> <i>file-name</i> [<i>id-field sep-char
+    dec-point-char</i> <em>com-char</em>] </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Groups: command">groups:</a> <i>file-name</i> [<i>id-field-list sep-char
+    dec-point-char</i> <em>com-char</em>] </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Recipes: command">recipes:</a> <i>file-name </i>[<i>recipe-field food-field
+    amount-field sep-char dec-point-char</i> <em>com-char</em>] </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Recipe sum: command">food weight:</a> <i>weight field-list</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Ingredients: command">ingredients:</a> keep|keepx|sum </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Cook: command">cook:</a> <i>type-name reduce-field field-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Weight cook: command">weight cook:</a> <i>type-name weight-reduce-field
+    field-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Set: command">set:</a> <i>field = expression</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Group set: command">group set:</a> <i>field = expression</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Recipe set: command">recipe set:</a> <i>field = expression</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#No-calc fields: command">no-calc fields:</a><i> field-list</i></td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Text fields: command">text fields:</a> <em>field-list</em></td>
+  </tr>
+  <tr>
+    <td>!</td>
+    <td><a href="#Input: command">input:</a> <i>file-name</i> [<i>id-field amount-field
+    sep-char dec-point-char</i> <em>com-char</em>] </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Input format: command">input format:</a> text|bin-native </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Input fields: command">input fields:</a> <i>field-list</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Input *fields: command">input *fields:</a> <i>field-list</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Input scale: command">input scale:</a> <i>scale</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Cook field: command">cook field:</a> <i>cook-field type-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Reduce field: command">reduce field:</a> <i>reduce-field field-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Weight reduce field: command">weight reduce field:</a> <i>weight-reduce-field
+    field-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Recipe reduce field: command">recipe reduce field:</a> <i>reduce-field
+    field-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Recipe weight reduce field: command">recipe weight reduce field:</a> <i>weight-reduce-field
+    field-list</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Non-edible field: command">non-edible field:</a> <em>non-edible-field </em>[<em>flag-field</em>]</td>
+  </tr>
+  <tr>
+    <td>!</td>
+    <td><a href="#Output: command">output:</a> <i>file-name</i> [<i>sep-char dec-point-char</i>]
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Output format: command">output format:</a> text|text-no-head|bin-native </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Output fields: command">output fields:</a> <i>field-list</i> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Group by: command">group by:</a> <i>field-list</i> </td>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td><a href="#Transpose: command">transpose:</a> <em>field number field-list</em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><a href="#Where: command">where:</a><em> logical-expr</em></td>
+  </tr>
+</table>
+
+<p>Arguments to commands must be separated by one or more blanks. If an argument contains
+blanks, commas or semi-colons it must be enclosed in double-quotes (&quot;). If a number
+is used as argument, you must use the point character (.) as decimal point. If an argument
+is a list of values or names the elements in the list must be separated by commas. If some
+arguments in the list above is enclosed in square brackets ([ ]) they are optional. You
+can leave out all optional arguments or just the last one or more arguments.<br>
+If an argument is a <i>field-list</i> you can list field names separated by commas. You
+can also specify a range of fields by typing the name of the first field, two dashes (--),
+and the name of the last field. Single fields and ranges of fields may be in the same <i>field-list</i>
+separated by commas. The order of food table fields will be the order they are added to
+the food table by &quot;foods:&quot; and &quot;groups:&quot; commands.</p>
+
+<h3><a name="Calling FoodCalc">Calling FoodCalc</a></h3>
+
+<p>You execute FoodCalc by entering the following at a command prompt or in a script file:
+
+<dir>
+  <code><p>foodcalc [<em>options</em>] [<em>file-names</em>]</code></p>
+</dir>
+
+<p>The file names should be names of commands files. If more than one file is specified,
+the ones following the first will be read as if the commands were entered at the bottom of
+the first file. If no file names are given as argument, FoodCalc will read commands from
+standard input.</p>
+
+<p>You can optionally give one or more of the following options as arguments before any
+file name arguments:</p>
+
+<table border="0" cellspacing="4">
+  <tr>
+    <td valign="top" width="25%">-v&nbsp;<em>number</em></td>
+    <td>The same as using the &quot;<a href="#Verbosity: command">verbosity:</a>&quot;
+    command. This will also override any &quot;<a href="#Verbosity: command">verbosity:</a>&quot;
+    commands in the commands files.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">-l&nbsp;<em>file-name</em></td>
+    <td>The same as using the &quot;<a href="#Log: command">log:</a>&quot; command. This will
+    also override any &quot;<a href="#Log: command">log:</a>&quot; commands in the commands
+    files.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">-i&nbsp;<em>file-name</em></td>
+    <td>This file will be used instead of the file name given as argument to the &quot;<a
+    href="#Input: command">input:</a>&quot; command. This is most useful when also using the
+    -s command.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">-o&nbsp;<em>file-name</em></td>
+    <td>This file will be used instead of the file name given as argument to the &quot;<a
+    href="#Input: command">output:</a>&quot; command. This is most useful when also using the
+    -s command.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">-s&nbsp;<em>file-name</em></td>
+    <td>See the description of the &quot;<a href="#Save: command">save:</a>&quot; command for
+    information about the -s option.</td>
+  </tr>
+</table>
+
+<h3><a name="Log: command">Log: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>log: <i>file-name</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;log:&quot; command specifies the name of a file where the FoodCalc log will
+be written. If you do not use the &quot;log:&quot; command, FoodCalc will take the name of
+the commands file given as argument to FoodCalc, strip out an ending &quot;.fc&quot; or
+&quot;.txt&quot; and append &quot;.log&quot;. The resulting file name will be used for the
+log file. If you do use the &quot;log:&quot; command, it should be the first command in
+the commands file.</p>
+
+<h3><a name="Verbosity: command">Verbosity: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>verbosity: <em>number</em></td>
+  </tr>
+</table>
+
+<p>The &quot;verbosity:&quot; command specifies how verbose FoodCalc will be when writing
+the log file. The higher the number, the more verbose FoodCalc will be. As default will be
+used the number 50, which is pretty verbose. Currently the following levels are defined:</p>
+
+<table border="0">
+  <tr>
+    <td>50</td>
+    <td>Default.</td>
+  </tr>
+  <tr>
+    <td>40</td>
+    <td>Do not print warning messages.</td>
+  </tr>
+  <tr>
+    <td>30</td>
+    <td>Do not print the name of the log file to standard error.</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>Do not print any informational messages about files read and written.</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td>Do not print any error messages.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Do not make a log file.</td>
+  </tr>
+</table>
+
+<h3><a name="Commands: command">Commands: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>commands: <i>file-name</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;commands:&quot; command is optional and can be used more than once. It
+specifies an additional commands file, and the commands in this file will be processed as
+if they were entered at the bottom of the current commands file.</p>
+
+<h3><a name="Save: command">Save: command</a></h3>
+
+<table>
+  <tr>
+    <td widht="30"></td>
+    <td>save: <i>file-name</i> </td>
+  </tr>
+</table>
+
+<p>The save command is very special. When it is used, FoodCalc will read all the commands,
+foods, groups and recipes files, but it will not read the input file nor write the output
+file. Instead it will save all the information from the commands, foods, groups and
+recipes files in the file given as argument to the &quot;save:&quot; command, using an
+efficient binary format.<br>
+At a later time you can then execute the FoodCalc command with: 
+
+<dir>
+  <code><p>foodcalc &#150;s save-file</code></p>
+</dir>
+
+<p>When executed like this, FoodCalc will read the information in the binary save-file and
+then run as if it was given the original commands, foods, groups and recipes files.
+However, you may override the names of the log file, input file and output file from the
+original commands file by using the -l, -i and -o options.</p>
+
+<p>This is mostly useful if you run FoodCalc repeatedly with different (small) input files
+but with the same foods, groups and recipes files. FoodCalc can read the binary save file
+much faster than the original foods, groups and recipes files.</p>
+
+<h3><a name="Decimal point: command">Decimal point: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>decimal point: <i>character</i> </td>
+  </tr>
+</table>
+
+<p>Specifies the character to use as default decimal point for all data files (you may
+override it for specific data files). If you do not use the &quot;decimal point:&quot;
+command, FoodCalc will use the point character (.) as default decimal point.</p>
+
+<h3><a name="Separator: command">Separator: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>separator: <i>character</i> </td>
+  </tr>
+</table>
+
+<p>Specifies the character to use as default separator for all data files (you may
+override it for specific data files). If you do not use the &quot;separator:&quot;
+command, FoodCalc will use comma (,) as default separator.</p>
+
+<h3><a name="Comment: command">Comment: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>comment: <i>character</i> </td>
+  </tr>
+</table>
+
+<p>Specifies the character to use as default comment character for all data files (you may
+override it for specific data files). If you do not use the &quot;comment:&quot; command,
+FoodCalc will use semi-colon (;) as default comment character.</p>
+
+<h3><a name="Blip: command">Blip: command</a></h3>
+
+<table>
+  <tr>
+    <td widht="30"></td>
+    <td>blip: <i>number</i> </td>
+  </tr>
+</table>
+
+<p>If the &quot;blip:&quot; command is used, FoodCalc will write the number of lines read
+from the input file to standard error (usually to the terminal/screen), whenever it has
+read as many lines as is specified as argument to the &quot;blip:&quot; command.</p>
+
+<h3><a name="Foods: command">Foods: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">!+</td>
+    <td>foods: <i>file-name</i> [<i>id-field sep-char dec-point-char</i> <em>com-char</em>] </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to read the foods file with the name given as the first argument. A
+foods file is a <a href="#Data files">data file</a>, where each line defines a food. One
+of the fields in the file must be the food id field, which identifies the foods. The food
+id field will be a no-calc field. Food id values must be unique positive integers. If the
+second argument to the &quot;foods:&quot; command is used it must be the name of the
+field, which is the food id field. Otherwise the first field in the file is used as food
+id field. The third, fourth and fifth arguments can be used to specify the separator
+character, the decimal point character and the comment character for the foods file.<br>
+You must always have at least one &quot;foods:&quot; command, and you can have as many as
+you need. If you use more than one foods file, the files do not need to have the same
+fields and they do not need to contain the same foods. The foods files are read in the
+same order as the &quot;foods:&quot; commands are given. If more than one foods files
+defines the same field for the same food, the food table will get the value from the last
+foods file. If a foods file define a food but none of the foods files defines all fields
+for this food, the missing fields will get zero values.<br>
+If you use more than one foods file, you will usually have files with same fields but
+different foods, or files with different fields (except the food id field) but the same
+foods. However there may be situations where it is useful to combine this.</p>
+
+<h3><a name="Groups: command">Groups: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>groups: <i>file-name</i> [<i>id-field-list sep-char dec-point-char</i> <em>com-char</em>]
+    </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to read the groups file with the name given as the first argument. A
+groups file is a <a href="#Data files">data file</a>, where each line defines a group. One
+or more of the fields in the file must be the group id fields, which identifies the group.
+Group id values must be unique positive integers. If the second argument to the
+&quot;groups:&quot; command is used it must be the names of the group id fields. Otherwise
+the first field in the file is used as a single group id field. The third, fourth and
+fifth arguments can be used to specify the separator character, the decimal point
+character and the comment character for the groups file.<br>
+The values in the groups file will be expanded into the food table. Before the expansion
+there must already be fields in the food table with the same names as the group id fields
+in the groups file. We call these for group reference fields. All the fields in the groups
+file will be added to the food table. For all foods in the food table, the group reference
+fields must be either zero or have a value, which can be found as group id in the groups
+file. If it is found in the groups file, all the values for that group will be used for
+the given food. If the food reference values is zero all the group fields will get zero
+values for the given food. The group reference fields will be a no-calc fields.<br>
+You can use as many groups files as you need. Groups files are expanded in the order the
+&quot;groups:&quot; commands are given.</p>
+
+<h3><a name="Recipes: command">Recipes: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>recipes: <i>file-name </i>[<i>recipe-field food-field amount-field sep-char
+    dec-point-char</i> <em>com-char</em>] </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to read the recipes file with the name given as the first argument. A
+recipes file is a <a href="#Data files">data file</a>, where each line defines an
+ingredient in a recipe. One of the fields in the file must be the recipe id field, which
+identifies the recipe. Recipe id values must be unique positive integers (they must be
+unique across all recipe files and foods files). Another field must be the ingredient id
+field, which identifies the ingredient in the recipe. Ingredient id values must be found
+in the food table, and this identifies the food in the ingredient. A third field must be
+the amount field, which specifies the amount used of the ingredient. If the second, third
+and fourth argument are given to the &quot;recipes:&quot; command, they must be the names
+of the recipe id, ingredient id and amount fields. Otherwise the first, second and third
+fields in the file will be used. The fifth, sixth and seventh arguments can be used to
+specify the separator, decimal point and comment characters for the recipes file.<br>
+All ingredients for a recipe must come right after each other in the recipes file. If you
+manually edit your recipes files you will usually use the star format with the recipe
+field as a star field.<br>
+FoodCalc will calculate the total nutrients content for each recipe, which are then
+normalized as described under the &quot;<a href="#Recipe sum: command">food weight:</a>&quot;
+command. The resulting values will be entered in the food table with a food id equal to
+the recipe id. The effect is that the recipe can then be used as any other food.<br>
+If you use &quot;<a href="#Ingredients: command">ingredients:</a> sum&quot; and a recipe
+file has any fields with the same name as non-calc fields in the food table, then these
+recipe fields should have the same value for all ingredients in a recipe, and these values
+will be copied to the food table fields when the recipe(/food) is entered into the food
+table. If you use the star format, you should make such recipe fields star fields.<br>
+You can use as many recipes files as you like. When a &quot;recipes:&quot; command is
+given you must also give a &quot;<a href="#Recipe sum: command">food weight</a>:&quot;
+command.</p>
+
+<h3><a name="Recipe sum: command">Food weight: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>food weight: <i>weight field-list</i> </td>
+  </tr>
+</table>
+
+<p>Specifies the food table amount and which fields sum to the weight of the food. The
+first argument specifies for which amount of food the nutrient values in the food table
+are given. This is what we call the food table amount, and is typically 100 grams.<br>
+The second argument to the &quot;food weight:&quot; command should be a list of fields,
+which are in the food table or which are set fields. The sum of the values of these fields
+(after any reductions) should express the total weight of the food (typically you should
+specify fields containing the values of all the macro nutrients: total protein, total fat,
+total carbohydrate, alcohol, ash and water). In recipes all nutrients in all ingredients
+will then be normalized with the same factor, so that this sum for all ingredients equals
+the food table amount.</p>
+
+<h3><a name="Ingredients: command">Ingredients: command</a></h3>
+
+<table>
+  <tr>
+    <td widht="30"></td>
+    <td>ingredients: keep|keepx|sum </td>
+  </tr>
+</table>
+
+<p>The &quot;ingredients:&quot; command can be used with one of the keywords
+&quot;keep&quot;, &quot;keepx&quot; or &quot;sum&quot; as argument. If sum is specified,
+recipes will behave exactly like they were a single food. This is the default. If keep or
+keepx is used, then recipes will behave as if each of the ingredients was specified
+separately in the input file.<br>
+If sum or keepx is used any fields from the recipes files with the same names as fields in
+the food table will be copied to the food table when the recipes are entered into the
+table. If keep is used such fields keep the value that the ingredients had in the table.</p>
+
+<h3><a name="Cook: command">Cook: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>cook: <i>type-name reduce-field field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;cook:&quot; command specifies how to do reductions of nutrients when cooking.
+The first argument should be the name of the cooking method. You can choose these names
+freely. The second argument must be the name of a field in the food table (this field will
+be a no-calc field). This field is called a reduce field. The third argument must be a
+list of names of fields in the food table. The meaning is, that when cooking by the given
+method, the values of all fields in the third argument should be reduced by the fraction,
+which is the value of the reduce field. If the reduce field has the value zero, there will
+be no reductions. If it is positive it should be less than or equal to one. If it is
+negative, the effect is to increase the values of the fields in the third argument.<br>
+Usually you will have more than one cooking method and for each cooking method you will
+usually have several &quot;cook:&quot; commands, because you have a number of reduce
+fields in the food table, which each reduces different nutrients.</p>
+
+<h3><a name="Weight cook: command">Weight cook: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>weight cook: <i>type-name weight-reduce-field field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;weight cook:&quot; command is a variation of the &quot;<a
+href="#Cook: command">cook:</a>&quot; command. The only difference is, that the second
+argument is not a reduce field but a weight reduce field. The weight reduce field should
+be in the food table and it should specify a fraction of the weight of the food. The first
+field in the field list will be reduced with an amount equal to the fraction of the weight
+of the food. Any other fields in the field list will be reduced with an fraction equal to
+the fraction the first field was reduced with. The first field in the list must be a food
+table field or a set field, any additional fields must be food table fields.<br>
+The &quot;weight cook:&quot; command is normally only useful, when the first field in the
+field list is a macro nutrient (or ash or water). You can freely combine the use of &quot;<a
+href="#Cook: command">cook:</a>&quot; and &quot;weight cook:&quot; commands. If you use
+the &quot;weight cook:&quot; command you must also use the &quot;<a
+href="#Recipe sum: command">food weight:</a>&quot; command.</p>
+
+<h3><a name="Set: command">Set: command </a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>set: <em>field </em>= <em>expression</em></td>
+  </tr>
+</table>
+
+<p>The &quot;set:&quot; command will make a new field with the name of field to the left
+of the &quot;=&quot; and value equal the expression. You can use expression with the
+following EBNF syntax:</p>
+
+<table border="0">
+  <tr>
+    <td><em>Exp</em></td>
+    <td align="right">&nbsp; ::=&nbsp;&nbsp; </td>
+    <td><em>Exp1</em>&nbsp; { +|-&nbsp; <em>Exp1</em> }</td>
+  </tr>
+  <tr>
+    <td><em>Exp1</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td><em>Exp2</em>&nbsp; { *|/&nbsp; <em>Exp2</em> }</td>
+  </tr>
+  <tr>
+    <td><em>Exp2</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td>[ - ] <em>Exp3</em></td>
+  </tr>
+  <tr>
+    <td><em>Exp3</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td><em>Number</em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="right">|&nbsp;&nbsp; </td>
+    <td><em>Field-name</em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="right">|&nbsp;&nbsp; </td>
+    <td>(&nbsp; <em>Exp</em>&nbsp; )</td>
+  </tr>
+</table>
+
+<p>Any fields in the expression should be food table fields or previous set fields. The
+set fields will be calculated for each food that is calculated, and if the &quot;<a
+href="#Group by: command">group by:</a>&quot; command is used it will be aggregated just
+like a nutrient fields. For each command it will be noted if a set field can be used as
+argument, but in general set fields can be used almost all places where a food table
+nutrient field can be used.</p>
+
+<h3><a name="Group set: command">Group set: command </a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>group set: <em>field </em>= <em>expression</em></td>
+  </tr>
+</table>
+
+<p>The &quot;group set:&quot; command will make a new field very much like the &quot;<a
+href="#Set: command">set:</a>&quot; command, but if the &quot;<a href="#Group by: command">group
+by:</a>&quot; is used the group set fields will be calculated <em>after</em> the group
+aggregations are done. This means you can use the &quot;group set:&quot; command to
+calculate things like indexes and percents (e.g. percent of total energy coming from fat).
+Group set fields can only be used in the &quot;<a href="#Output fields: command">output
+fields:</a>&quot; command and in later &quot;group set:&quot; commands.</p>
+
+<h3><a name="Recipe set: command">Recipe set: command </a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>recipe set: <em>field </em>= <em>expression</em></td>
+  </tr>
+</table>
+
+<p>The &quot;recipe set:&quot; command will make a new field somewhat like the &quot;<a
+href="#Set: command">set:</a>&quot; command, but the field is calculated for each recipe
+ingredient and then the field is added to the food table (if the field already is in the
+food table its value will be changed to the value of the expression). therefore recipe set
+fields can be used just like any other food table field.<br>
+Any fields in the expression can be food table fields, set fields or fields from the
+recipes fields.</p>
+
+<h3><a name="Calculate: command">Calculate: command </a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>calculate: <i>new-field</i> <i>additive-list</i> </td>
+  </tr>
+</table>
+
+<p><strong>The &quot;calculate:&quot; command only exists for backward compatibility. You
+should now use the &quot;<a href="#Set: command">set:</a>&quot; command!</strong><br>
+You can use the &quot;calculate:&quot; command to make new fields, which will as values
+have the weighted sum of (possible reduced) values of fields in the food table. The first
+argument should be the name of the new field. The second argument should be a list of
+names of fields in the food table (or of fields previously defined with a
+&quot;calculate:&quot; command). The values of those fields will be summarized. You may
+enter a number before each field name in the list (but also separate the number and the
+name with a comma). The value of such a field will then be weighted with that number
+before it is added to the sum.</p>
+
+<h3><a name="No-calc fields: command">No-calc fields: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>no-calc fields:<i> field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;no-calc fields:&quot; command takes a list of names of fields in the food
+table as argument. The fields will be no-calc fields. Note, that many other commands has
+the side effect of making fields no-calc. Fields that are not no-calc are supposed to be
+nutrient fields. No-calc fields will not be weighted with amounts, will not be aggregated
+by the &quot;<a href="#Group by: command">group by</a>:&quot; command and will not be
+reduced by <a href="#Cook field: command">cooking</a>.</p>
+
+<h3><a name="Text fields: command">Text fields: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>text fields:<i> field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;text fields:&quot; command takes a list of names of fields as argument. All
+fields with one of these names in the foods, groups, recipes and input files will be text
+fields. Text fields can have any value, but are totally ignored by FoodCalc. All fields
+which are not text fields can have only numeric values.</p>
+
+<h3><a name="Input: command">Input: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">!</td>
+    <td>input: <i>file-name</i> [<i>id-field amount-field sep-char dec-point-char</i> <em>com-char</em>]
+    </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to read the input file with the names given as the first argument. An
+input file is a <a href="#Data files">data file</a>, where each line gives the amount
+consumed of a given food. One of the fields must be the consumption id field. Consumption
+id values must be found in the food table, and this identifies the food consumed. Another
+field must be the amount field, which specifies the amount consumed. If the second and
+third arguments are given to the &quot;input:&quot; command, they must be the names of the
+consumption id field and the amount field. Otherwise the first and the second fields in
+the file will be used.<br>
+FoodCalc will multiply the amount with the input scale and this value will be multiplied
+with all nutrient fields in the food table (nutrient fields are all fields that are not
+no-calc). After that any reductions will be made and any new fields calculated.</p>
+
+<h3><a name="Input format: command">Input format: command</a></h3>
+
+<table>
+  <tr>
+    <td widht="30"></td>
+    <td>input format: text|bin-native </td>
+  </tr>
+</table>
+
+<p>The &quot;input format:&quot; command can be used to specify the format of the input
+file, and it can be used with either the keyword &quot;text&quot; or the keyword
+&quot;bin-native&quot; as argument. If the keyword text is used the input file should be a
+data file (however, see also the &quot;input fields:&quot; command&quot;). This is the
+default.<br>
+If the keyword bin-native is used, the &quot;<a href="#Input fields: command">input
+fields:</a>&quot; command must be used to specify the names of the fields. The input files
+must only contain the values, and these should be in the form of binary double precision
+floating point numbers without any end of line markers or any end of file markers. This
+format will be different on different platforms. If you generate the file with a C
+program, you should use variables of type double, and you should open the file with the
+&quot;wb&quot; mode. If you generate the file with SAS you should use a FILE command with
+&quot;LRECL=(8*number-of-fields) RECFM=F&quot;, and you should put with the format RB8.<br>
+You should only use the bin-native input format when you have large amounts of data and
+want to improve the running time. FoodCalc can read a bin-native file somewhat faster than
+a data file.</p>
+
+<h3><a name="Input fields: command">Input fields: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>input fields: <i>field-list</i> </td>
+  </tr>
+</table>
+
+<p>Normally the input file is a data file, where the names of the fields are in the first
+non-comment line in the file. Instead you can use the &quot;input fields:&quot; command to
+name the fields. If you do that, you must not also have the names of the fields in the
+input file.<br>
+You must always use the &quot;input fields:&quot; command if you use the &quot;<a
+href="#Save: command">save:</a>&quot; command or if you use the &quot;<a
+href="#Input format: command">input format: bin-native</a>&quot; command.</p>
+
+<h3><a name="Input *fields: command">Input *fields: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>input *fields: <i>field-list</i> </td>
+  </tr>
+</table>
+
+<p>You can only use the &quot;input *fields:&quot; command, when you also use the &quot;<a
+href="#Input fields: command">input fields:</a>&quot; command. When you use the
+&quot;input *fields:&quot; command the input file should be in star format, except without
+the two field name lines. The fields in the &quot;input *fields:&quot; command will be the
+star fields and the fields in the &quot;<a href="#Input fields: command">input fields:</a>&quot;
+command will be the non-star fields.</p>
+
+<h3><a name="Input scale: command">Input scale: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>input scale: <i>scale</i> </td>
+  </tr>
+</table>
+
+<p>The argument to the &quot;input scale:&quot; command should be a number, and that
+number is multiplied with all input amounts and all recipe amounts. If your food table has
+nutrient values pr. <i>n</i> units of food, and your amount fields uses the same unit,
+then you should use the value of 1/<i>n</i> as argument to the &quot;input scale:&quot;
+command. If you do not use the &quot;input scale:&quot; command the value one will be
+used.</p>
+
+<h3><a name="Cook field: command">Cook field: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>cook field: <i>cook-field type-list</i> </td>
+  </tr>
+</table>
+
+<p>The first argument to the &quot;cook field:&quot; command should be the name of a
+field. If that field name is found in the input file, that input field will be a cook
+field. If the field name is found in a recipes file, that recipe field will be a cook
+field. You may have a cook field in just the input file or just in a recipe file. Or you
+can have a cook field in both the input file and the recipes file &#150; in this case, the
+cook fields must have the same name!<br>
+The second argument must be a list of names of cooking methods. All these cooking methods
+must be defined with &quot;<a href="#Cook: command">cook:</a>&quot; commands.<br>
+If a cook field has the value zero, it specifies that this food should not be cooked.
+Otherwise it must have a positive value less than or equal to the number of cooking
+methods in the second argument to the &quot;cook field:&quot; command. The value then
+selects the cooking method which has the same ordinal number in the list as the value of
+the cook field. How the cooking is done must be defined with &quot;<a
+href="#Cook: command">cook:</a>&quot; commands.</p>
+
+<h3><a name="Reduce field: command">Reduce field: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>reduce field: <i>reduce-field field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;reduce field:&quot; command is used to specify reductions of nutrients
+depending on values in the input file or in recipes files. The first argument should be
+the name of a field. If that field is found in the input file, that input field will be a
+reduce field. If the field name is found in a recipes file, that recipe field will be a
+reduce field. You may have a reduce field in just the input file or just in a recipe file.
+Or you can have a reduce field in both the input file and the recipes file &#150; in this
+case, the reduce fields must have the same names! The second argument must be a list of
+names of food table fields.<bt> All the values of the food table fields will be reduced with
+the fraction that is the value of the reduce field. If the reduce field has the value zero
+there will be no reductions. If it is positive, it should be less than or equal to one. If
+it is negative, the effect is to increase the values of the food table fields.<br>
+You can define as many reduce fields as you need.</p>
+
+<h3><a name="Weight reduce field: command">Weight reduce field: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>weight reduce field: <i>weight-reduce-field field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;weight reduce field:&quot; command is a variation of the &quot;<a
+href="#Reduce field: command">reduce field:</a>&quot; command. The only difference is,
+that the second argument is not a reduce field but a weight reduce field. The weight
+reduce field should be in the input file and/or in the recipes files, and it should
+specify a fraction of the weight of the food. The first field in the field list will be
+reduced with an amount equal to the fraction of the weight of the food. Any other fields
+in the field list will be reduced with an fraction equal to the fraction the first field
+was reduced with. The first field in the list must be a food table field or a set field,
+any additional fields must be food table fields.<br>
+The &quot;weight reduce field:&quot; command is normally only useful, when the first field
+in the field list is a macro nutrient (or ash or water). If you use the &quot;weight
+reduce field:&quot; command you must also use the &quot;<a href="#Recipe sum: command">food
+weight:</a>&quot; command.</p>
+
+<h3><a name="Recipe reduce field: command">Recipe reduce field: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>recipe reduce field: <i>reduce-field field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;reduce field:&quot; command is used to specify reductions of nutrients
+depending on values in recipes files. The first argument should be the name of a field. If
+the field name is found in a recipes file, that recipe field will be a reduce field. The
+recipe reduce field should have the same values for all the ingredients in a recipe. If
+you use the star format, you should make the reduce field a star field.<br>
+The second argument must be a list of names of food table fields.<bt> For all ingredients in a
+recipe all the values of the food table fields will be reduced with the fraction that is
+the value of the reduce field. If the reduce field has the value zero there will be no
+reductions. If it is positive, it should be less than or equal to one. If it is negative,
+the effect is to increase the values of the food table fields.<br>
+The &quot;recipe reduce field:&quot; command is actually just an alias for the &quot;<a
+href="#Reduce field: command">reduce field:</a>&quot; command.</p>
+
+<h3><a name="Recipe weight reduce field: command">Recipe weight reduce field: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>recipe weight reduce field: <i>weight-reduce-field field-list</i> </td>
+  </tr>
+</table>
+
+<p>The &quot;recipe weight reduce field:&quot; command is a variation of the &quot;<a
+href="#Recipe reduce field: command">recipe reduce field:</a>&quot; command. The only
+difference is, that the second argument is not a reduce field but a weight reduce field.
+The weight reduce field should be in the recipes files, and it should specify a fraction
+of the weight of the food.&nbsp;The recipe weight reduce field should have the same values
+for all the ingredients in a recipe. If you use the star format, you should make the
+weight reduce field a star field.<br>
+The first field in the list of nutrient fields in the command are summarized for all the
+ingredients (let us call this n-sum), and also the weight of all the ingredients are
+summarized (let us call this w-sum). If we call the value of the reduce field for r,
+FoodCalc then calculates a fraction to reduce by: (r * w-sum) / n-sum. All the nutrient
+fields in the command are then reduced by this fraction for all the ingredients in the
+recipe.<br>
+The first field in the list must be a food table field or a set field, any additional
+fields must be food table fields. The &quot;recipe weight reduce field:&quot; command is
+normally only useful, when the first field in the field list is a macro nutrient (or ash
+or water). If you use the &quot;recipe&nbsp; weight reduce field:&quot; command you must
+also use the &quot;<a href="#Recipe sum: command">food weight:</a>&quot; command.</p>
+
+<h3><a name="Non-edible field: command">Non-edible field: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>non-edible field: <i>non-edible-field </i>[<i>flag-field</i>] </td>
+  </tr>
+</table>
+
+<p>The food table (the foods and groups files) should contain nutrient values for only the
+edible part of foods, and the input and recipes fields should have amount fields
+specifying the amount eaten, except if you use the &quot;non-edible field:&quot; command.<br>
+The first argument to the &quot;non-edible field:&quot; command should be the name of a
+field in the food table, which as value has the non-edible fraction of the foods, as they
+are normally purchased.<br>
+If the second argument is not specified, then all amount fields in input and recipes files
+should contain the total weights (the weight of both the edible and non-edible parts).<br>
+If the second argument is specified, it should be a field name. If this field is <em>not</em>
+in an input or recipes file, then all the amounts in this file should be the weight of the
+edible part. If the field is in a file, then it should have the value zero or one. If it
+is zero, the amount should be the weight of the edible part. If the value is one, the
+amount should be the total weight of that food (the weight of both the edible and
+non-edible parts).</p>
+
+<h3><a name="Output: command">Output: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">!</td>
+    <td>output: <i>file-name</i> [<i>sep-char dec-point-char</i>] </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to write the output file with the name given as the first argument. The
+output file is a <a href="#Data files">data file</a> (however, se also the &quot;<a
+href="#Output format: command">output format:</a>&quot; command), where each line will
+list the nutrients consumed. The second and third argument can be used to specify the
+separator and decimal point characters.<br>
+If you do not use the &quot;<a href="#Group by: command">group by:</a>&quot; command,
+there will be one output line for each input line. If you do use group by, there will be
+one output line for each (sub)group.</p>
+
+<h3><a name="Output format: command">Output format: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>output format: text|text-no-head|bin-native </td>
+  </tr>
+</table>
+
+<p>The &quot;output format:&quot; command can be used to specify the format of the output
+file, and it can be used with one of the keywords &quot;text&quot;,
+&quot;text-no-head&quot; or &quot;bin-native&quot;. If the keyword text is used the output
+file will be a <a href="#Data files">data file</a>. This is the default. If the keyword
+text-no-head is used, the output file will be like a data file, but without a line with
+the names of the fields.<br>
+If the keyword bin-native is used, the output file will only contain the values in the
+form of binary double precision floating point numbers without any end of line markers or
+any end of file marker. This format will be different on different platforms. If you read
+the resulting file with a C program, you should use variables of type double, and you
+should open the file with the &quot;rb&quot; mode. If you read the file with SAS, you
+should use an INFILE command with &quot;LRECL=(8*number-of-fields) RECFM=F&quot;, and you
+should get with the informat RB8.<br>
+You should only use the bin-native output format when you have large amounts of data and
+want to improve the running time. FoodCalc can write a bin-native file somewhat faster
+than a data file.</p>
+
+<h3><a name="Output fields: command">Output fields: command</a></h3>
+
+<table>
+  <tr>
+    <td widht="30"></td>
+    <td>output fields: <i>field-list</i> </td>
+  </tr>
+</table>
+
+<p>This command specifies which fields are written to the output file. If you do not use
+the &quot;<a href="#Group by: command">group by:</a>&quot; command, you can specify any
+input field, any food table field, any set field and any group set field. If you do use
+the &quot;<a href="#Group by: command">group by:</a>&quot; command, you can specify only
+nutrient table fields (fields that are not no-calc), set fields, group set fields, and
+group by fields. Any input field or no-calc field will be written just as it was read.
+Nutrient fields will be weighted with the amount and the input scale, possibly reduced by
+reduce fields, and possibly summarized by a group by.<br>
+If you do not use the &quot;output fields:&quot; command and do not use the &quot;<a
+href="#Group by: command">group by:</a>&quot; command, the default will be to output all
+fields from the input file, all fields from the food table, all set fields, and all group
+set fields. If you do not use the &quot;output fields:&quot; command but do use the &quot;<a
+href="#Group by: command">group by:</a>&quot; command, the default will be to output all
+the group by fields, all the nutrient fields, all set fields, and all the group set
+fields.<br>
+You should only output the fields you need, because FoodCalc runs faster and uses less
+memory when feever fields are output.</p>
+
+<h3><a name="Group by: command">Group by: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>group by: <i>field-list</i> </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to group the foods according to the values of one or more group by
+fields, and to summarize the nutrients in each group. The argument to the &quot;group
+by:&quot; command should be a list of field names of fields in either the input file or
+the food table. These fields are called group by fields and they will be no-calc fields.
+If the first one or more fields in the field-list are input fields, the input file must be
+sorted ascending on these fields. Only the integer part of the values of these fields will
+be used.<br>
+Each nutrient field will be summarized for all foods where all the group by fields has the
+same values.</p>
+
+<h3><a name="Transpose: command">Transpose: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30"></td>
+    <td>transpose: <i>field number field-list</i> </td>
+  </tr>
+</table>
+
+<p>Tells FoodCalc to output the fields in the field-list transposed on the field in the
+first argument. The &quot;transpose:&quot; command can only be used when the &quot;<a
+href="#Group by: command">group by:</a>&quot; is also used. The field in the first
+argument it the field transposed on and should be a field from the food table and it will
+be a no-calc field. <br>
+Each field in the field-list will be transposed and should be a field in the food table or
+a set field. For each of these fields will be output <em>number</em> fields as specified
+in the second argument. The output fields will be named the same as the transposed field
+but with the numbers one to <em>number</em> as suffix. To the output field with number <em>n</em>
+will be added the value of the transposed field when the integer part of the value of the
+field transposed on equals <em>n</em>. If the field transposed on does not have a value
+&gt;= one and &lt;= <em>n</em>, then the transposed field will not be added to any of the
+output fields.</p>
+
+<h3><a name="Where: command">Where: command</a></h3>
+
+<table>
+  <tr>
+    <td widt="30"></td>
+    <td>where:<em> logical-expr</em></td>
+  </tr>
+</table>
+
+<p>The argument to the &quot;where:&quot; command should be a logical expression with the
+following EBNF syntax:</p>
+
+<table border="0">
+  <tr>
+    <td><em>Lexp</em></td>
+    <td align="right">&nbsp; ::=&nbsp;&nbsp; </td>
+    <td><em>Lexp1</em> { or <em>Lexp1</em> }</td>
+  </tr>
+  <tr>
+    <td><em>Lexp1</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td><em>Lexp2</em> { and <em>Lexp2</em> }</td>
+  </tr>
+  <tr>
+    <td><em>Lexp2</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td>[ not ] <em>Lexp3</em></td>
+  </tr>
+  <tr>
+    <td><em>Lexp3</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td><em>Val</em>&nbsp; =|&lt;&gt;&nbsp; <em>Val</em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="right">|&nbsp;&nbsp; </td>
+    <td><em>Val</em>&nbsp; &gt;|&gt;=&nbsp; <em>Val</em>&nbsp; [ &gt;|&gt;=&nbsp; <em>Val</em>]</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="right">|&nbsp;&nbsp; </td>
+    <td><em>Val</em>&nbsp; &lt;|&lt;=&nbsp; <em>Val</em>&nbsp; [ &lt;|&lt;=&nbsp; <em>Val</em>]</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="right">|&nbsp;&nbsp; </td>
+    <td><em>Val</em>&nbsp; [ not ]&nbsp; in ( <em>Val</em> { , <em>Val</em> } )</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td align="right">|&nbsp;&nbsp; </td>
+    <td>( <em>Lexp</em> )</td>
+  </tr>
+  <tr>
+    <td><em>Val</em></td>
+    <td align="right">::=&nbsp;&nbsp; </td>
+    <td><em>Field-name</em>&nbsp; |&nbsp; <em>Number</em></td>
+  </tr>
+</table>
+
+<p>Any fields in the logical expression must be food table fields or set field. The
+command selects only foods where the logical expression evaluate to true.</p>
+
+<h3><a name="If: command">If: command</a></h3>
+
+<table>
+  <tr>
+    <td widt="30">+</td>
+    <td>if: <i>field value-list</i> </td>
+  </tr>
+</table>
+
+<p><strong>The &quot;if:&quot; command only exists for backward compatibility. You should
+now use the &quot;<a href="#Where: command">where:</a>&quot; command!</strong><br>
+The first argument to the &quot;if:&quot; command should be the name of a field in the
+food table. This field will be a no-calc field. The second argument should be a list of
+numbers. The command selects only foods where the value of the field equals one of the
+values in the second argument. If more than one &quot;if:&quot; command are used, a food
+is selected if just one of the commands select the food.</p>
+
+<h3><a name="If not: command">If not: command</a></h3>
+
+<table>
+  <tr>
+    <td width="30">+</td>
+    <td>if not: <i>field value-list</i> </td>
+  </tr>
+</table>
+
+<p><strong>The &quot;if not:&quot; command only exists for backward compatibility. You
+should now use the &quot;<a href="#Where: command">where:</a>&quot; command!</strong><br>
+The first argument to the &quot;if not:&quot; command should be the name of a field in the
+food table. This field will be a no-calc field. The second argument should be a list of
+numbers. The command deselects foods where the value of the field equals one of the values
+in the second argument. If more than one &quot;if not:&quot; command are used, a food is
+deselected if just one of the commands deselects the food.</p>
+
+<h2><a name="Version history">Version history</a></h2>
+
+<table border="0">
+  <tr>
+    <td><strong>Version</strong></td>
+    <td><strong>Comment</strong></td>
+  </tr>
+  <tr>
+    <td>v1.0</td>
+    <td>Initial version</td>
+  </tr>
+  <tr>
+    <td valign="top">v1.1</td>
+    <td>Treats carrige return as blank space. This allows us to read DOS/Windows files on UNIX
+    systems.<br>
+    Fixes a few bugs.</td>
+  </tr>
+  <tr>
+    <td valign="top">v1.2</td>
+    <td>Allow comments at end of lines in data and commands files.<br>
+    Changeable comment character in data files. New &quot;<a href="#Comment: command">comment:</a>&quot;
+    command.<br>
+    Continuation lines (=) in data and commands files.<br>
+    Text fields in data files. New &quot;<a href="#Text fields: command">text fields:</a>&quot;
+    command.<br>
+    Star format in data files. New &quot;<a href="#Input *fields: command">input *fields:</a>&quot;
+    command.<br>
+    Recipe fields with same name as non-calc fields in the food table will now be copied to
+    the food table when ingredients: sum is used.<br>
+    New &quot;<a href="#Recipe weight reduce field: command">recipe weight reduce field:</a>&quot;
+    command.<br>
+    New &quot;<a href="#Recipe reduce field: command">recipe reduce field:</a>&quot; command
+    is an alias for the &quot;<a href="#Reduce field: command">reduce field:</a>&quot;
+    command.<br>
+    The &quot;recipe sum:&quot; command is now called &quot;<a href="#Recipe sum: command">food
+    weight:</a>&quot;.<br>
+    New &quot;<a href="#Weight cook: command">weight cook:</a>&quot; and &quot;<a
+    href="#Weight reduce field: command">weight reduce field:</a>&quot; commands.<br>
+    New &quot;<a href="#Non-edible field: command">non-edible field:</a>&quot; command.<br>
+    New -v option and new &quot;<a href="#Verbosity: command">verbosity:</a>&quot; command.<br>
+    New -l, -i and -o options. The -s option now takes only one argument.</td>
+  </tr>
+  <tr>
+    <td valign="top">v1.3</td>
+    <td>Added new &quot;<a href="#Set: command">set:</a>&quot;, &quot;<a
+    href="#Group set: command">group set:</a>&quot; and &quot;<a href="#Recipe set: command">recipe
+    set:</a>&quot; command to do more general calculations at different points of the FoodCalc
+    processing. The &quot;calculate:&quot; command is now obsolete.<br>
+    Added new &quot;<a href="#Where: command">where:</a>&quot; command to make more general
+    selections of foods. The &quot;if:&quot; and &quot;if not:&quot; commands are now
+    obsolete.<br>
+    Added new &quot;<a href="#Transpose: command">transpose:</a>&quot; command to transpose
+    nutrient fields on a field expressing some grouping of the foods. This is often more handy
+    than doing a &quot;<a href="#Group by: command">group by:</a>&quot; on a food table field.<br>
+    Most limitations of the &quot;<a href="#Group by: command">group by:</a>&quot; command has
+    been lifted. You can now group on several food table fields and the food table fields do
+    not have to be last in the list of group by fields.<br>
+    Groups files can now be identified by more than one field. For example by main group and
+    sub group.<br>
+    New keepx argument to the &quot;<a href="#Ingredients: command">ingredients:</a>&quot;
+    command keeps ingredients like the keep argument but moves values from the recipes file to
+    the food table like the sum argument does.</td>
+  </tr>
+</table>
+</font>
+</body>
+</html>

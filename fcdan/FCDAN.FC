@@ -1,0 +1,64 @@
+;
+; Denne fil er et eksempel på en FoodCalc commands fil, som bruger filerne, der
+; blev genereret af FCdan.pl programmet.
+; Denne commands fil bliver inkluderet i eksempelX.fc filerne.
+;
+; Jesper Lauritsen, 981216
+
+foods: foodtbl.txt foodid
+groups: tabtbl.txt tabgruppe
+
+no-calc fields: Svind--Fedtsyrefaktor
+text fields: food_navn,food_enavn
+
+; Energiudregninger jnf. Levnedsmiddeltabeller, 4. udg.
+set: protein_energi = 17 * protein_tot
+set: fedt_energi = 38 * fedt_tot
+set: kulhydrat_energi = 17 * kulhydrat_tot
+set: alkohol_energi = 30 * alkohol
+set: energi = protein_energi + fedt_energi + kulhydrat_energi +
+=             alkohol_energi
+group set: protein_energi_pct = protein_energi / energi * 100
+group set: fedt_energi_pct = fedt_energi / energi * 100
+group set: kulhydrat_energi_pct = kulhydrat_energi / energi * 100
+group set: alkohol_energi_pct = alkohol_energi / energi * 100
+set: vægt = protein_tot + kulhydrat_tot + fedt_tot + alkohol +
+=           aske + vand
+
+food weight: 100 vægt   ; fødevaretabellen har mængde af indholdsstoffer per 100 gram!
+input scale: 0.01       ; vi vil angive mængder i input filer i gram
+
+cook: kog A_vit_kog A_vitamin--Beta_caroten
+cook: kog E_vit_kog E_vitamin--Alfa_tokoferol
+cook: kog B1_vit_kog Thiamin
+cook: kog B2_vit_kog Riboflavin
+cook: kog Niacin_kog NE_Niacin--Tryptofans_bidrag
+cook: kog B6_vit_kog B6_vitamin
+cook: kog B12_vit_kog B12_vitamin
+cook: kog C_vit_kog C_vitamin
+cook: kog Mineral_kog Natrium--Nikkel
+
+cook: steg A_vit_steg A_vitamin--Beta_caroten
+cook: steg E_vit_steg E_vitamin--Alfa_tokoferol
+cook: steg B1_vit_steg Thiamin
+cook: steg B2_vit_steg Riboflavin
+cook: steg Niacin_steg NE_Niacin--Tryptofans_bidrag
+cook: steg B6_vit_steg B6_vitamin
+cook: steg B12_vit_steg B12_vitamin
+cook: steg C_vit_steg C_vitamin
+cook: steg Mineral_steg Natrium--Nikkel
+
+cook: bag A_vit_bag A_vitamin--Beta_caroten
+cook: bag E_vit_bag E_vitamin--Alfa_tokoferol
+cook: bag B1_vit_bag Thiamin
+cook: bag B2_vit_bag Riboflavin
+cook: bag Niacin_bag NE_Niacin--Tryptofans_bidrag
+cook: bag B6_vit_bag B6_vitamin
+cook: bag B12_vit_bag B12_vitamin
+cook: bag C_vit_bag C_vitamin
+cook: bag Mineral_bag Natrium--Nikkel
+
+cook field: tilberedning kog,steg,bag ; kog=1, steg=2, bag=3
+
+;non-edible field: svind
+

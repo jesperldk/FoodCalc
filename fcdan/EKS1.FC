@@ -1,0 +1,17 @@
+;
+; Eksempel 1
+;
+
+commands: fcdan.fc
+
+; input filen indeholder felterne persid,food,gdag, som er et interview
+; person id, et food id (fra levnedsmiddeltabellen) og antal gram per
+; dag, som personen har spist af dette food. Der er altså en række linier
+; i filen for hver interview-person.
+input: input1.txt food gdag
+
+; i output kommer een linie for hver person.
+group by: persid
+output: output1.txt
+output fields: persid, energi, vægt, a_vitamin
+transpose: hovedgruppe 17 energi ; energibidrag fra hver af de 17 fødevaregrupper

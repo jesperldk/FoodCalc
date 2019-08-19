@@ -1,0 +1,24 @@
+;
+; Eksempel 2
+;
+
+commands: fcdan.fc
+
+; opskrift filen definerer nogle opskrifter med tilberedninger og
+; svindfaktorer for fedt og vand.
+recipes: opsk2.txt opskriftnr fødevare_nr gram
+text fields: opskrift_navn
+recipe weight reduce field: opskrift_fedtsvind ; reducerer fedt og alle fedtsyrer
+=                           fedt_tot, fedtsyrer_mætt_sum--fedtsyrer_polyumætt_sum
+recipe weight reduce field: opskrift_vandsvind vand
+
+; input filen indeholder felterne persid,food,gdag, som er et interview
+; person id, et food id (fra levnedsmiddeltabellen eller fra opskrifts-
+; filen) og antal gram per dag, som personen har spist af dette food. Der
+; er altså en række linier i filen for hver interview-person.
+input: input2.txt food gdag
+group by: persid
+
+; i output kommer een linie for hver person.
+output: output2.txt
+output fields: persid, a_vitamin

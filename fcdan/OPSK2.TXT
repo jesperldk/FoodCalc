@@ -1,0 +1,28 @@
+; opskrifter 
+;
+; Denne opskriftsfil bruger star-formatet.
+; Bemærk, at fcdan.fc filen definerer cook reduce fields, så vi
+; får reduceret vitaminer og mineraler ved tilberedning ud fra
+; faktorerne i tabtbl.txt groups filen.
+; Her definenerer vi fedt- og vand-svind på opskriftsniveau, og
+; disse bruges i eksempel2.fc filen.
+
+*opskriftnr,opskrift_navn,opskrift_fedtsvind,opskrift_vandsvind
+fødevare_nr,gram,tilberedning
+
+*10101,"Fiskefrikadelle",0,0.2
+312,100,2
+531,10,2
+116,10,2
+340,15,2
+156,50,2
+165,50,2
+387,3,2
+1254,10,2
+
+*10102,"Kogt kartoffel",0,0.05
+115,100,1
+
+*10103,"Flæskesteg",0.05,0.25
+382,100,3
+387,0.5,3
